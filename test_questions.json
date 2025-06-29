@@ -1,0 +1,63 @@
+
+[
+  {
+    "question": "How many sick days do I get annually?",
+    "expected_answer_type": "in_context_direct",
+    "reference_answer": "Full-time employees accrue 8 hours of sick leave for every month of service, up to a maximum of 80 hours per year."
+  },
+  {
+    "question": "What is the process for requesting vacation time and what is the maximum I can carry over?",
+    "expected_answer_type": "in_context_synthesis",
+    "reference_answer": "All vacation requests must be submitted through the company's HR portal at least two weeks in advance and are subject to manager approval. A maximum of 40 hours of unused vacation time may be carried over into the next calendar year."
+  },
+  {
+    "question": "What's the company's policy on pet-friendly Fridays?",
+    "expected_answer_type": "out_of_context",
+    "reference_answer": "I am sorry, but I cannot find information on that specific topic in the provided HR documents."
+  },
+  {
+    "question": "Can you tell me about the company's stock option plan?",
+    "expected_answer_type": "out_of_context",
+    "reference_answer": "I am sorry, but I cannot find information on that specific topic in the provided HR documents."
+  },
+  {
+    "question": "How do I notify my manager if I am sick?",
+    "expected_answer_type": "in_context_direct",
+    "reference_answer": "To take sick leave, employees must notify their direct manager as soon as reasonably possible, preferably before the start of their scheduled workday."
+  },
+  {
+    "question": "How much vacation time do new employees get?",
+    "expected_answer_type": "in_context_direct",
+    "reference_answer": "Full-time employees with 0-5 years of service accrue 4.6 hours per pay period (equivalent to 15 days per year)."
+  },
+  {
+    "question": "Can I work from home every day?",
+    "expected_answer_type": "in_context_direct",
+    "reference_answer": "Employees may work remotely up to two days per week, subject to manager approval."
+  },
+  {
+    "question": "What equipment does the company provide for working from home?",
+    "expected_answer_type": "in_context_direct",
+    "reference_answer": "The company will provide a laptop and necessary software, but other equipment (e.g., monitor, desk chair) is the employee's responsibility."
+  },
+  {
+    "question": "What are the core working hours for remote employees?",
+    "expected_answer_type": "in_context_direct",
+    "reference_answer": "Core working hours are from 10:00 AM to 4:00 PM local time, during which employees are expected to be available for meetings and communication."
+  },
+  {
+    "question": "What is the policy on bereavement leave?",
+    "expected_answer_type": "out_of_context",
+    "reference_answer": "I am sorry, but I cannot find information on that specific topic in the provided HR documents."
+  },
+  {
+    "question": "How is vacation time accrued and how much can I carry over?",
+    "expected_answer_type": "in_context_synthesis",
+    "reference_answer": "Vacation time is accrued on a bi-weekly basis. A maximum of 40 hours of unused vacation time may be carried over into the next calendar year."
+  },
+  {
+    "question": "Do I need a doctor's note for sick leave?",
+    "expected_answer_type": "in_context_direct",
+    "reference_answer": "A doctor's note may be required for absences exceeding three consecutive days."
+  }
+]
