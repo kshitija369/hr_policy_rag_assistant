@@ -20,16 +20,36 @@ This project implements a Retrieval-Augmented Generation (RAG) system to answer 
     export GOOGLE_API_KEY="YOUR_API_KEY"
     ```
 
-3.  **Run the HR Assistant:**
+3.  **Run the HR Assistant (Python):**
 
     ```bash
     python hr_assistant.py "Your HR-related question"
     ```
 
-4.  **Run the Evaluation:**
+4.  **Run the Evaluation (Python):**
 
     ```bash
     python evaluate_rag.py
+    ```
+
+5.  **Containerization (Docker):**
+
+    **Build the Docker Image:**
+
+    ```bash
+    docker build -t hr-rag-assistant .
+    ```
+
+    **Run the HR Assistant (Docker):**
+
+    ```bash
+    docker run -e GOOGLE_API_KEY="YOUR_API_KEY" hr-rag-assistant python hr_assistant.py "How much vacation time do I get?"
+    ```
+
+    **Run the Evaluation (Docker):**
+
+    ```bash
+    docker run -e GOOGLE_API_KEY="YOUR_API_KEY" hr-rag-assistant python evaluate_rag.py
     ```
 
 ## RAG Pipeline Architecture
