@@ -1,4 +1,3 @@
-
 # HR Policy RAG Assistant
 
 ## Project Description
@@ -51,27 +50,34 @@ You are an expert HR assistant. Your task is to answer employee questions STRICT
 
 ## Evaluation Methodology and Results
 
-The evaluation framework uses a test dataset of 12 questions to assess the RAG system's performance on three metrics:
+The evaluation framework uses a test dataset of 12 questions to assess the RAG system's performance on three metrics, utilizing an LLM (Gemini 1.5 Flash Latest) as a judge for more robust assessment:
 
-*   **Groundedness:** Checks if the generated answer is supported by the retrieved context.
-*   **Relevance/Correctness:** Checks if the generated answer accurately addresses the question.
-*   **Out-of-Context Handling:** Checks if the system correctly identifies and handles out-of-context questions.
+*   **Groundedness:** The LLM judge verifies if the generated answer is entirely supported by the retrieved context.
+*   **Relevance/Correctness:** The LLM judge assesses if the generated answer accurately and relevantly addresses the original question, given the context and comparing it against a reference answer.
+*   **Out-of-Context Handling:** Checks if the system correctly identifies and handles out-of-context questions by stating that information cannot be found.
 
-**Results:**
+**Results (using LLM-as-a-Judge):**
 
-*   **Groundedness:** 100% (10/10 in-context questions)
-*   **Relevance/Correctness:** 10% (1/10 in-context questions)
-*   **Out-of-Context Handling:** 0% (0/2 out-of-context questions)
+*   **Groundedness:** 100.00%
+*   **Relevance/Correctness:** 88.89%
+*   **Out-of-Context Handling:** 66.67%
+
+## Considerations for LLM-as-a-Judge
+
+*   **Cost & Latency:** Each evaluation step involves an additional LLM call, increasing cost and execution time. For larger datasets, consider optimizing by running evaluation less frequently or using a faster, cheaper LLM for the judge.
+*   **Judge's Consistency:** LLMs can be inconsistent. Running the judge multiple times and taking an average, or using few-shot examples within the judge prompt, can improve reliability.
+*   **Parsing Output:** Robust parsing of the judge's output is crucial (e.g., looking for keywords like "YES", "NO", ignoring case or surrounding text).
+*   **Transparency:** It is important to clearly state that an LLM was used for evaluation when presenting results.
 
 ## Insights, Challenges, and Future Improvements
 
-*   **Insights:** The RAG system is effective at retrieving relevant information and generating grounded answers. The use of a powerful LLM like Gemini allows for natural and human-like responses.
+*   **Insights:** The RAG system is highly effective at retrieving relevant information and generating grounded answers. The LLM-as-a-Judge approach provides a more nuanced and accurate evaluation of groundedness and relevance.
 *   **Challenges:**
-    *   The evaluation metrics, especially for relevance, are too simplistic and need to be improved.
-    *   The prompt engineering for out-of-context handling needs to be more robust to ensure the model follows the instructions precisely.
-    *   The environment for running the code was not consistent, leading to issues with package installation and environment variables.
+    *   The prompt engineering for out-of-context handling needs further refinement to ensure the model consistently adheres to the specified response for unavailable information.
+    *   Ensuring the consistency and reliability of the LLM judge itself is an ongoing challenge.
 *   **Future Improvements:**
-    *   Implement more sophisticated evaluation metrics, potentially using another LLM as a judge.
-    *   Refine the system prompt to improve out-of-context handling.
+    *   Further refine the system prompt for out-of-context handling.
+    *   Experiment with different LLM judge prompts and few-shot examples to improve consistency.
+    *   Explore more advanced techniques for evaluating LLM responses, such as fine-tuning a smaller model specifically for judging.
     *   Experiment with different chunking strategies and embedding models.
     *   Use a more robust vector store like ChromaDB or FAISS.
