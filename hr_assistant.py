@@ -42,19 +42,14 @@ def main():
     max_similarity_score = np.max(top_k_scores)
 
     if max_similarity_score < RETRIEVAL_THRESHOLD:
-        print("
---- LLM Response ---")
+        print("\n--- LLM Response ---")
         print("I am sorry, but I cannot find information on that specific topic in the provided HR documents.")
         return
 
     system_prompt = """You are an expert HR assistant. Your task is to answer employee questions STRICTLY based on the provided HR policy documents. If the answer is NOT present in the provided context, you MUST state 'I am sorry, but I cannot find information on that specific topic in the provided HR documents.' Do not make up information."""
 
-    user_prompt = f"""Context:
-{'\n'.join(relevant_chunks)}
-
-Question: {user_question}
-
-Answer:"""
+    context_str = '\n'.join(relevant_chunks)
+    user_prompt = f"""Context:\n{context_str}\n\nQuestion: {user_question}\n\nAnswer:"""
 
     import os
     import google.generativeai as genai
@@ -68,8 +63,7 @@ Answer:"""
 
     response = model.generate_content(user_prompt)
 
-    print("
---- LLM Response ---")
+    print("\n--- LLM Response ---")
     print(response.text)
 
 if __name__ == "__main__":
