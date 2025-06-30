@@ -13,7 +13,8 @@ def chunk_text(text, chunk_size=200, overlap=50):
 def get_relevant_chunks(query_embedding, vector_store, chunks, k=3):
     similarities = cosine_similarity(query_embedding.reshape(1, -1), list(vector_store.values()))[0]
     top_k_indices = np.argsort(similarities)[-k:][::-1]
-    return [chunks[i] for i in top_k_indices]
+    top_k_scores = similarities[top_k_indices]
+    return [chunks[i] for i in top_k_indices], top_k_scores
 
 def main():
     with open("hr_policy.md", "r") as f:
@@ -34,7 +35,17 @@ def main():
 
     query_embedding = model.encode([user_question])
 
-    relevant_chunks = get_relevant_chunks(query_embedding, vector_store, chunks)
+    relevant_chunks, top_k_scores = get_relevant_chunks(query_embedding, vector_store, chunks)
+
+    # Implement Retrieval Score Thresholding
+    RETRIEVAL_THRESHOLD = 0.45  # Adjusted threshold
+    max_similarity_score = np.max(top_k_scores)
+
+    if max_similarity_score < RETRIEVAL_THRESHOLD:
+        print("
+--- LLM Response ---")
+        print("I am sorry, but I cannot find information on that specific topic in the provided HR documents.")
+        return
 
     system_prompt = """You are an expert HR assistant. Your task is to answer employee questions STRICTLY based on the provided HR policy documents. If the answer is NOT present in the provided context, you MUST state 'I am sorry, but I cannot find information on that specific topic in the provided HR documents.' Do not make up information."""
 
@@ -57,7 +68,8 @@ Answer:"""
 
     response = model.generate_content(user_prompt)
 
-    print("\n--- LLM Response ---")
+    print("
+--- LLM Response ---")
     print(response.text)
 
 if __name__ == "__main__":

@@ -16,7 +16,8 @@ def chunk_text(text, chunk_size=200, overlap=50):
 def get_relevant_chunks(query_embedding, vector_store, chunks, k=3):
     similarities = cosine_similarity(query_embedding.reshape(1, -1), list(vector_store.values()))[0]
     top_k_indices = np.argsort(similarities)[-k:][::-1]
-    return [chunks[i] for i in top_k_indices]
+    top_k_scores = similarities[top_k_indices]
+    return [chunks[i] for i in top_k_indices], top_k_scores
 
 def evaluate_groundedness_llm(llm_judge, context, rag_system_answer):
     system_prompt = """You are an expert evaluator of AI-generated content. Your task is to determine if an 'Answer' is entirely supported by the 'Context' provided. Respond with 'YES' if the answer is fully supported by the context, and 'NO' if any part of the answer is not supported or introduces new information not found in the context."""
@@ -64,13 +65,20 @@ def main():
         reference_answer = item["reference_answer"]
 
         query_embedding = embedding_model.encode([question])
-        relevant_chunks = get_relevant_chunks(query_embedding, vector_store, chunks)
+        relevant_chunks, top_k_scores = get_relevant_chunks(query_embedding, vector_store, chunks)
         context = "\n".join(relevant_chunks)
 
-        user_prompt = f"""Context:\n{context}\n\nQuestion: {question}\n\nAnswer:"""
+        # Retrieval Score Thresholding
+        RETRIEVAL_THRESHOLD = 0.45  # Same threshold as in hr_assistant.py
+        max_similarity_score = np.max(top_k_scores)
 
-        response = llm.generate_content(user_prompt)
-        generated_answer = response.text.strip()
+        generated_answer = ""
+        if max_similarity_score < RETRIEVAL_THRESHOLD:
+            generated_answer = "I am sorry, but I cannot find information on that specific topic in the provided HR documents."
+        else:
+            user_prompt = f"""Context:\n{context}\n\nQuestion: {question}\n\nAnswer:"""
+            response = llm.generate_content(user_prompt)
+            generated_answer = response.text.strip()
 
         result = {
             "question": question,
@@ -88,6 +96,7 @@ def main():
         elif expected_type == "out_of_context":
             result["out_of_context_handled"] = evaluate_out_of_context(generated_answer)
 
+        result["max_similarity_score"] = max_similarity_score # Add similarity score to results
         results.append(result)
 
     # Calculate and print overall metrics
@@ -111,6 +120,7 @@ def main():
     for res in results:
         print(f"Question: {res['question']}")
         print(f"Generated Answer: {res['generated_answer']}")
+        print(f"Max Similarity Score: {res['max_similarity_score']:.4f}") # Print similarity score
         if res['expected_type'] != 'out_of_context':
             print(f"Grounded (LLM Judge): {res['grounded']}")
             print(f"Relevant (LLM Judge): {res['relevant']}")

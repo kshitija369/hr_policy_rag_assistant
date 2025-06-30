@@ -56,11 +56,11 @@ The evaluation framework uses a test dataset of 12 questions to assess the RAG s
 *   **Relevance/Correctness:** The LLM judge assesses if the generated answer accurately and relevantly addresses the original question, given the context and comparing it against a reference answer.
 *   **Out-of-Context Handling:** Checks if the system correctly identifies and handles out-of-context questions by stating that information cannot be found.
 
-**Results (using LLM-as-a-Judge):**
+**Results (using LLM-as-a-Judge with Retrieval Score Thresholding at 0.45):**
 
 *   **Groundedness:** 100.00%
-*   **Relevance/Correctness:** 88.89%
-*   **Out-of-Context Handling:** 66.67%
+*   **Relevance/Correctness:** 66.67%
+*   **Out-of-Context Handling:** 100.00%
 
 ## Considerations for LLM-as-a-Judge
 
@@ -71,9 +71,9 @@ The evaluation framework uses a test dataset of 12 questions to assess the RAG s
 
 ## Insights, Challenges, and Future Improvements
 
-*   **Insights:** The RAG system is highly effective at retrieving relevant information and generating grounded answers. The LLM-as-a-Judge approach provides a more nuanced and accurate evaluation of groundedness and relevance.
+*   **Insights:** The RAG system is highly effective at retrieving relevant information and generating grounded answers. The LLM-as-a-Judge approach provides a more nuanced and accurate evaluation of groundedness and relevance. Retrieval score thresholding significantly improved out-of-context handling.
 *   **Challenges:**
-    *   The prompt engineering for out-of-context handling needs further refinement to ensure the model consistently adheres to the specified response for unavailable information.
+    *   Finding the optimal retrieval threshold is crucial; a too-high threshold can filter out relevant in-context questions, while a too-low threshold can lead to hallucinations for out-of-context queries.
     *   Ensuring the consistency and reliability of the LLM judge itself is an ongoing challenge.
 *   **Future Improvements:**
     *   Further refine the system prompt for out-of-context handling.
