@@ -2,3 +2,7 @@ sentence-transformers
 numpy
 scikit-learn
 google-generativeai
+torch
+onnxruntime
+optimum
+onnx

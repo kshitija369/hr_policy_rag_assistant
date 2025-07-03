@@ -4,6 +4,8 @@ import numpy as np
 import google.generativeai as genai
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+import argparse
+import onnxruntime as rt
 
 def chunk_text(text, chunk_size=200, overlap=50):
     words = text.split()
@@ -36,19 +38,71 @@ def evaluate_relevance_llm(llm_judge, question, context, rag_system_answer, refe
 def evaluate_out_of_context(answer):
     return "cannot find information" in answer.lower() or "not contain information" in answer.lower() or "does not contain information" in answer.lower()
 
+class QuantizedEmbedder:
+    def __init__(self, model_path):
+        self.session = rt.InferenceSession(model_path)
+        self.sbert_model = SentenceTransformer('all-MiniLM-L6-v2')
+        self.tokenizer = self.sbert_model.tokenizer # Access the underlying tokenizer
+
+    def encode(self, texts):
+        # Tokenize the texts
+        # Tokenize the texts
+        tokenized_texts = self.tokenizer.batch_encode_plus(
+            texts,
+            padding=True,
+            truncation=True,
+            return_tensors='np',
+            max_length=self.tokenizer.max_len_single_sentence # Use the tokenizer's max length
+        )
+        
+        # Prepare ONNX input
+        onnx_inputs = {
+            'input_ids': tokenized_texts['input_ids'].astype(np.int64),
+            'attention_mask': tokenized_texts['attention_mask'].astype(np.int64),
+            
+        }
+        
+        # Run ONNX inference
+        outputs = self.session.run(None, onnx_inputs)
+        
+        # Extract embeddings (assuming the first output is the embeddings)
+        embeddings = outputs[0]
+        # Perform mean pooling (similar to Sentence-BERT)
+        input_mask_expanded = np.expand_dims(tokenized_texts['attention_mask'], -1).astype(float)
+        sum_embeddings = np.sum(embeddings * input_mask_expanded, 1)
+        sum_mask = np.maximum(np.sum(input_mask_expanded, 1), 1e-9) # Avoid division by zero
+        embeddings = sum_embeddings / sum_mask
+        
+        # Normalize embeddings
+        norm = np.linalg.norm(embeddings, axis=1, keepdims=True)
+        # Add a small epsilon to prevent division by zero
+        embeddings = embeddings / (norm + 1e-12)
+        
+        return embeddings
+
 def main():
+    parser = argparse.ArgumentParser(description="Evaluate RAG system with different embedding models.")
+    parser.add_argument("--quantized", action="store_true", help="Use quantized embedding model.")
+    args = parser.parse_args()
+
     api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
         raise ValueError("API key not found. Please set the GOOGLE_API_KEY environment variable.")
-    genai.configure(api_key=api_key)
+    genai.configure(api_key=api_key);
 
     with open("hr_policy.md", "r") as f:
         hr_policy_text = f.read()
 
     chunks = chunk_text(hr_policy_text)
 
-    model_name = 'all-MiniLM-L6-v2'
-    embedding_model = SentenceTransformer(model_name)
+    if args.quantized:
+        print("Using quantized embedding model...")
+        embedding_model = QuantizedEmbedder("quantized_embedder_model.onnx")
+    else:
+        print("Using original SentenceTransformer model...")
+        model_name = 'all-MiniLM-L6-v2'
+        embedding_model = SentenceTransformer(model_name)
+    
     embeddings = embedding_model.encode(chunks)
     vector_store = {i: embeddings[i] for i in range(len(chunks))}
 
