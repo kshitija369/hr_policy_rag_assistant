@@ -76,10 +76,26 @@ The evaluation framework uses a test dataset of 12 questions to assess the RAG s
 *   **Relevance/Correctness:** The LLM judge assesses if the generated answer accurately and relevantly addresses the original question, given the context and comparing it against a reference answer.
 *   **Out-of-Context Handling:** Checks if the system correctly identifies and handles out-of-context questions by stating that information cannot be found.
 
+**Embedding Model Performance Comparison:**
+
+| Metric                     | Original Model | Quantized Model |
+|----------------------------|----------------|-----------------|
+| Model Size                 | 87.57 MB       | 56.00 MB        |
+| Embedding Time (per batch) | 0.2305 seconds | 0.1738 seconds  |
+| Groundedness Score         | 100.00%        | 100.00%         |
+| Relevance/Correctness Score| 55.56%         | 77.78%          |
+| Out-of-Context Handling    | 100.00%        | 100.00%         |
+
+**Key Findings:**
+- **Model Size Reduction:** The quantized model achieved a 36.05% reduction in size compared to the original model.
+- **Speedup:** The quantized model showed a 24.60% speedup in embedding time.
+- **Improved Relevance:** The quantized model significantly improved the Relevance/Correctness score from 55.56% to 77.78%, indicating better retrieval of relevant information.
+- **Maintained Performance:** Groundedness and Out-of-Context Handling scores remained at 100% for both models.
+
 **Results (using LLM-as-a-Judge with Retrieval Score Thresholding at 0.45):**
 
 *   **Groundedness:** 100.00%
-*   **Relevance/Correctness:** 66.67%
+*   **Relevance/Correctness:** 77.78%
 *   **Out-of-Context Handling:** 100.00%
 
 ## Considerations for LLM-as-a-Judge
