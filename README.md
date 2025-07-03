@@ -55,10 +55,18 @@ This project implements a Retrieval-Augmented Generation (RAG) system to answer 
 ## RAG Pipeline Architecture
 
 1.  **Chunking:** The `hr_policy.md` document is split into overlapping chunks of 200 tokens with a 50-token overlap.
-2.  **Embedding:** Each chunk is converted into a vector embedding using the `all-MiniLM-L6-v2` sentence-transformer model.
+2.  **Embedding:** Each chunk is converted into a vector embedding using the `all-MiniLM-L6-v2` sentence-transformer model. This model can be optionally quantized for reduced size and faster inference.
 3.  **Vector Store:** The embeddings are stored in a simple in-memory Python dictionary.
-4.  **Retrieval:** When a user asks a question, the question is embedded using the same model, and a cosine similarity search is performed to find the top 3 most relevant chunks.
+4.  **Retrieval:** When a user asks a question, the question is embedded using the same model (original or quantized), and a cosine similarity search is performed to find the top 3 most relevant chunks.
 5.  **Generation:** The retrieved chunks are combined with the user's question and a system prompt to create a final prompt for the `gemini-1.5-flash-latest` model, which then generates the answer.
+
+## Quantization of Embedding Model
+
+To optimize the embedding model for deployment, dynamic quantization was applied using ONNX Runtime. This process converts the model's weights and activations to a lower precision (e.g., 8-bit integers) without significant loss in accuracy, leading to a smaller model size and faster inference times.
+
+-   **Process:** The `quantize_embedder.py` script handles the conversion of the `SentenceTransformer` model to ONNX format and then applies dynamic quantization.
+-   **Usage:** The `evaluate_rag.py` script now supports an `--quantized` flag to use the quantized embedding model for evaluation. This allows for direct comparison of performance metrics between the original and quantized versions.
+-   **Benefits:** As shown in the evaluation results, quantization significantly reduces the model's footprint and improves embedding speed, making the RAG system more efficient for production environments.
 
 ## Prompt Engineering Strategy
 
